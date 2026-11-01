@@ -1,0 +1,76 @@
+{
+  "$comment": "Example Multi-Model Provider & Agent Configuration for TrueForge (No API keys committed! Copy to trueforge.config.local.json and set environment variables or paste keys locally).",
+  "trueforgeServerUrl": "http://localhost:8790",
+  "mcpServer": {
+    "name": "vscode-editor-mcp",
+    "type": "remote",
+    "url": "http://127.0.0.1:45821/mcp",
+    "description": "VS Code Editor Native MCP Server (search_workspace, read_file, list_files, get_symbols, get_diagnostics, propose_edit, run_command)"
+  },
+  "modelProviders": [
+    {
+      "type": "google-gemini",
+      "auth": {
+        "apiKey": "${GEMINI_API_KEY}"
+      },
+      "models": [
+        {
+          "name": "gemini-2.5-flash",
+          "modelId": "gemini-2.5-flash",
+          "properties": {
+            "contextLength": 1048576
+          }
+        },
+        {
+          "name": "gemini-2.5-pro",
+          "modelId": "gemini-2.5-pro",
+          "properties": {
+            "contextLength": 1048576
+          }
+        }
+      ]
+    },
+    {
+      "type": "openai",
+      "auth": {
+        "apiKey": "${OPENAI_API_KEY}"
+      },
+      "models": [
+        {
+          "name": "gpt-4o-mini",
+          "modelId": "gpt-4o-mini",
+          "properties": {
+            "contextLength": 128000
+          }
+        },
+        {
+          "name": "gpt-4o",
+          "modelId": "gpt-4o",
+          "properties": {
+            "contextLength": 128000
+          }
+        }
+      ]
+    },
+    {
+      "type": "custom",
+      "name": "local-ollama",
+      "baseUrl": "http://localhost:11434/v1",
+      "models": [
+        {
+          "name": "qwen2.5-coder",
+          "modelId": "qwen2.5-coder:7b",
+          "properties": {
+            "contextLength": 32768
+          }
+        }
+      ]
+    }
+  ],
+  "resilienceRouting": {
+    "primaryModel": "google-gemini/gemini-2.5-flash",
+    "fallbackModel": "openai/gpt-4o-mini",
+    "maxRetriesWithExponentialBackoff": 2
+  }
+}
+

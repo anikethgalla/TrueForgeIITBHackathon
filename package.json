@@ -1,0 +1,234 @@
+{
+  "name": "trueforge-coding-agent",
+  "displayName": "TrueForge Coding Agent",
+  "description": "Editor-native AI coding agent built on the TrueForge open-source agent harness with budget-aware AST/BM25 context assembly, per-hunk diff review driven by TrueForge MCP tool approvals, and automatic multi-model failover.",
+  "version": "1.0.0",
+  "publisher": "trueforge-team",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "AI",
+    "Programming Languages",
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "trueforge-sidebar",
+          "title": "TrueForge Agent",
+          "icon": "$(hubot)"
+        }
+      ]
+    },
+    "views": {
+      "trueforge-sidebar": [
+        {
+          "type": "webview",
+          "id": "trueforge.agentPanel",
+          "name": "TrueForge Coding Agent"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "trueforge.inlineEdit",
+        "title": "TrueForge: Inline Edit Selection",
+        "icon": "$(sparkle)"
+      },
+      {
+        "command": "trueforge.openAgentPanel",
+        "title": "TrueForge: Focus Agent Panel",
+        "icon": "$(comment-discussion)"
+      },
+      {
+        "command": "trueforge.cancelRun",
+        "title": "TrueForge: Cancel Active Generation",
+        "icon": "$(debug-stop)"
+      },
+      {
+        "command": "trueforge.undoLastEdit",
+        "title": "TrueForge: Undo Last Applied Agent Edit",
+        "icon": "$(discard)"
+      },
+      {
+        "command": "trueforge.acceptHunk",
+        "title": "TrueForge: Accept Diff Hunk"
+      },
+      {
+        "command": "trueforge.rejectHunk",
+        "title": "TrueForge: Reject Diff Hunk"
+      },
+      {
+        "command": "trueforge.acceptAllHunks",
+        "title": "TrueForge: Accept All Hunks in File",
+        "icon": "$(check-all)"
+      },
+      {
+        "command": "trueforge.rejectAllHunks",
+        "title": "TrueForge: Reject All Hunks in File",
+        "icon": "$(close-all)"
+      },
+      {
+        "command": "trueforge.switchModel",
+        "title": "TrueForge: Switch Active / Fallback Model",
+        "icon": "$(symbol-Event)"
+      },
+      {
+        "command": "trueforge.syncHarness",
+        "title": "TrueForge: Register MCP Server & Agent in Local TrueForge",
+        "icon": "$(sync)"
+      },
+      {
+        "command": "trueforge.openSessionInBrowser",
+        "title": "TrueForge: Open Active Session in TrueForge UI",
+        "icon": "$(link-external)"
+      },
+      {
+        "command": "trueforge.simulateFailureTaskC",
+        "title": "TrueForge: Toggle Task C Resilience Simulation (Invalid Primary Endpoint)",
+        "icon": "$(shield)"
+      },
+      {
+        "command": "trueforge.openCli",
+        "title": "CLI",
+        "category": "TrueForge",
+        "icon": "$(terminal)"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "trueforge.inlineEdit",
+        "key": "ctrl+shift+i",
+        "mac": "cmd+shift+i",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "trueforge.inlineEdit",
+        "key": "alt+k",
+        "mac": "cmd+k",
+        "when": "editorTextFocus && editorHasSelection"
+      },
+      {
+        "command": "trueforge.cancelRun",
+        "key": "ctrl+shift+backspace",
+        "mac": "cmd+shift+backspace"
+      },
+      {
+        "command": "trueforge.undoLastEdit",
+        "key": "ctrl+alt+z",
+        "mac": "cmd+alt+z"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "trueforge.openCli",
+          "when": "view == trueforge.agentPanel",
+          "group": "navigation@1"
+        },
+        {
+          "command": "trueforge.openCli",
+          "when": "view == trueforge.agentPanel",
+          "group": "1_cli@1"
+        },
+        {
+          "command": "trueforge.syncHarness",
+          "when": "view == trueforge.agentPanel",
+          "group": "2_harness@1"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "trueforge.inlineEdit",
+          "group": "navigation@1",
+          "when": "editorTextFocus"
+        },
+        {
+          "command": "trueforge.openCli",
+          "group": "navigation@2"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "trueforge.inlineEdit",
+          "group": "navigation@1"
+        },
+        {
+          "command": "trueforge.undoLastEdit",
+          "group": "navigation@2"
+        },
+        {
+          "command": "trueforge.openCli",
+          "group": "navigation@3"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "TrueForge Coding Agent",
+      "properties": {
+        "trueforge.serverUrl": {
+          "type": "string",
+          "default": "http://localhost:8790",
+          "description": "Base URL of the local TrueForge agent harness server (started via npx @truefoundry/trueforge@latest)."
+        },
+        "trueforge.authToken": {
+          "type": "string",
+          "default": "",
+          "description": "Optional Bearer token if authentication is enabled on TrueForge."
+        },
+        "trueforge.primaryModel": {
+          "type": "string",
+          "default": "google-gemini/gemini-3-5-flash",
+          "description": "Primary model FQN configured in TrueForge (e.g., google-gemini/gemini-3-5-flash)."
+        },
+        "trueforge.fallbackModel": {
+          "type": "string",
+          "default": "google-gemini/gemini-3-5-flash-lite",
+          "description": "Secondary fallback model FQN configured in TrueForge for automatic failover (Task C Resilience)."
+        },
+        "trueforge.contextTokenBudget": {
+          "type": "number",
+          "default": 12000,
+          "description": "Maximum token budget allocated for automatic repository context assembly per turn."
+        },
+        "trueforge.mcpPort": {
+          "type": "number",
+          "default": 45821,
+          "description": "Local port where the VS Code Extension exposes its Streamable HTTP/SSE MCP Server to TrueForge."
+        },
+        "trueforge.maxRetries": {
+          "type": "number",
+          "default": 2,
+          "description": "Number of exponential-backoff retries on the primary model before automatic failover to the fallback model."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "node esbuild.js",
+    "watch": "node esbuild.js --watch",
+    "typecheck": "tsc --noEmit",
+    "trueforge": "powershell -ExecutionPolicy Bypass -File ./scripts/start-trueforge.ps1",
+    "bootstrap": "npx tsx scripts/bootstrap-trueforge.ts",
+    "test": "npx tsx test/verify-components.ts"
+  },
+  "dependencies": {
+    "@truefoundry/trueforge-sdk": "^0.180.0",
+    "diff": "^5.2.0"
+  },
+  "devDependencies": {
+    "@types/diff": "^5.2.3",
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.85.0",
+    "esbuild": "^0.21.5",
+    "tsx": "^4.19.0",
+    "typescript": "^5.4.5"
+  }
+}

@@ -1,0 +1,8 @@
+node_modules/
+benchmark-repos/
+*.local.json
+.env
+.env.*
+*.vsix
+.vscode-test/
+
